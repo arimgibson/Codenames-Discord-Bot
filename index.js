@@ -2,12 +2,6 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 require("dotenv").config();
 
-let redRoleID = process.env.redRoleID;
-let blueRoleID = process.env.blueRoleID;
-let spymasterRoleID = process.env.spymasterRoleID;
-
-client.login(process.env.discordToken);
-
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.guilds.cache.get(process.env.serverID).members.fetch();
@@ -52,6 +46,7 @@ client.on("message", (message) => {
       message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "list":
+      // list(message)
       message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "add":
@@ -94,7 +89,9 @@ client.on("message", (message) => {
 
 function assign() {}
 
-function list() {}
+function list(message) {
+
+}
 
 function add(message, role, target) {
   let memberID = prepTarget(target, "adding");
