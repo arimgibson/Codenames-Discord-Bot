@@ -34,20 +34,25 @@ async function handleRequest(req) {
   let query = await new URL(req.url).pathname.substring(1);
   let type = "";
 
-  if (query > 0) {
+  let herokuRunning = await (async () => {
+    let checkStatus = await fetch("https://cn.arimgibson.com/status")
+    let statusJSON = await checkStatus.json()
+    return statusJSON.quantity
+  })();
+
+  if (query > 0 && !herokuRunning) {
     discord.body.content = `Starting Codenames Teams bot for ${query} hour(s). You can stop the bot early by visiting https://${workerURL}/stop`;
     heroku.body.quantity = "1";
     type = "start";
-  } else if (query === "stop" || query === "s") {
-    discord.body.content =
-      `Stopping Codenames Teams bot. You can restart the bot for an hour by visiting https://${workerURL}/1 or substitute \`1\` for another number of hours the bot should run.`;
+  } else if ((query === "stop" || query === "s") && herokuRunning) {
+    discord.body.content = `Stopping Codenames Teams bot. You can restart the bot for an hour by visiting https://${workerURL}/1 or substitute \`1\` for another number of hours the bot should run.`;
     heroku.body.quantity = "0";
     type = "stop";
   } else if (query === "status") {
     heroku.fetch.method = "GET";
     delete heroku.body;
     type = "status";
-  } else if (query === "stop/n" || query === "sn") {
+  } else if ((query === "stop/n" || query === "sn") && herokuRunning) {
     heroku.body.quantity = "0";
     type = "stopnomsg";
   } else {
