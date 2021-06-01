@@ -75,9 +75,7 @@ async function makeCall(type) {
 
   if (type === "status") {
     return JSON.stringify(herokuJSON);
-  } else if (type === "stopnomsg") {
-    return;
-  } else {
+  } else if (type !== "stopnomsg") {
     await fetch(discord.url, discord.fetch);
   }
 }
