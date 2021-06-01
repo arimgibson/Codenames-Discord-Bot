@@ -34,10 +34,12 @@ async function handleRequest(req) {
   let query = await new URL(req.url).pathname.substring(1);
   let type = "";
 
+  if (query < 0 || !Number.isInteger(query)) return new Response("Invalid query number. Please make sure you input a positive integer", { status: 400 });
+
   let herokuRunning = await (async () => {
-    let checkStatus = await fetch("https://cn.arimgibson.com/status")
-    let statusJSON = await checkStatus.json()
-    return statusJSON.quantity
+    let checkStatus = await fetch("https://cn.arimgibson.com/status");
+    let statusJSON = await checkStatus.json();
+    return statusJSON.quantity;
   })();
 
   if (query > 0 && !herokuRunning) {
