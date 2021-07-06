@@ -21,26 +21,46 @@ let heroku = {
     size: "free",
   },
   fetch: {
-    method: "PATCH",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/vnd.heroku+json; version=3",
       Authorization: `Bearer ${herokuBearer}`,
     },
-    body: "",
   },
 };
 
-let herokuRunning;
+let type = "";
+let i = 0;
 
 async function handleRequest(req) {
+  if (req.headers.get("User-Agent").includes("bot")) {
+    return new Response("Blocking bot", { status: 403 });
+  }
   let query = await new URL(req.url).pathname.substring(1);
-  let type = "";
+  if (parseInt(query, 10)) {
+    query = parseInt(query, 10);
+    if (query < 0 || !Number.isInteger(query)) {
+      return new Response("Invalid query number. Please make sure you input a positive integer", { status: 400 });
+    }
+  }
+
+  let herokuStatus = await getHerokuStatus();
+  let herokuRunning = herokuStatus.quantity;
 
   if (query === "status") {
-    heroku.fetch.method = "GET";
-    delete heroku.fetch.body;
-    type = "status";
+    return new Response(JSON.stringify(herokuStatus));
+  } else if (query > 0 && !herokuRunning) {
+    discord.body.content = `Starting Codenames Teams bot for ${query} hour(s). You can stop the bot early by visiting https://${workerURL}/stop`;
+    heroku.body.quantity = "1";
+    // type = "start";
+  } else if ((query === "stop" || query === "s") && herokuRunning) {
+    discord.body.content = `Stopping Codenames Teams bot. You can restart the bot for an hour by visiting https://${workerURL}/1 or substitute \`1\` for another number of hours the bot should run.`;
+    heroku.body.quantity = "0";
+    // type = "stop";
+  } else if ((query === "stop/n" || query === "sn" || query === "stopnomsg") && herokuRunning) {
+    heroku.body.quantity = "0";
+    type = "stopnomsg";
   } else {
     let herokuRunning = await (async () => {
       let checkStatus = await fetch("https://cn.arimgibson.com/status");
@@ -62,24 +82,22 @@ async function handleRequest(req) {
       return new Response("Invalid query", { status: 400 });
     }
 
-    discord.fetch.body = JSON.stringify(discord.body);
-    heroku.fetch.body = JSON.stringify(heroku.body);
-  }
-  let makeCallResponse = await makeCall(type);
+  discord.fetch.body = JSON.stringify(discord.body);
+  heroku.fetch.body = JSON.stringify(heroku.body);
 
-  if (makeCallResponse) return new Response(makeCallResponse, { status: 200 });
-  else return new Response("Success", { status: 200 });
+  let herokuResponse = await fetch(heroku.url, heroku.fetch);
+  if (!type) {
+    let discordcall = await fetch(discord.url, discord.fetch);
+  }
+  return new Response("Success");
+}
 }
 
-async function makeCall(type) {
-  let herokuResponse = await fetch(heroku.url, heroku.fetch);
-  let herokuJSON = await herokuResponse.json();
-
-  if (type === "status") {
-    return JSON.stringify(herokuJSON);
-  } else if (type !== "stopnomsg") {
-    await fetch(discord.url, discord.fetch);
-  }
+async function getHerokuStatus() {
+  let status = await fetch(heroku.url, heroku.fetch);
+  let statusJSON = await status.json();
+  heroku.fetch.method = "PATCH";
+  return statusJSON;
 }
 
 addEventListener("fetch", (event) => {
