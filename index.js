@@ -93,19 +93,19 @@ client.on("message", (message) => {
   }
 });
 
-function assign() {}
+function assign() { }
 
 function list(message) {
   let redSpymaster, blueSpymaster, redTeam, blueTeam, spymasterIDs;
   try {
-    redTeam = message.guild.roles.cache.get(redRoleID).members.map(m => ({ [m.id]: m.nickname }));
+    redTeam = message.guild.roles.cache.get(redRoleID).members.map(m => ({ [m.id]: (m.nickname ? m.nickname : m.user.username) }));
     redTeam = Object.assign(...redTeam)
   } catch {
     redTeam = {}
   }
 
   try {
-    blueTeam = message.guild.roles.cache.get(blueRoleID).members.map(m => ({ [m.id]: m.nickname }));
+    blueTeam = message.guild.roles.cache.get(blueRoleID).members.map(m => ({ [m.id]: (m.nickname ? m.nickname : m.user.username) }));
     blueTeam = Object.assign(...blueTeam)
   } catch {
     blueTeam = {}
@@ -129,7 +129,7 @@ function list(message) {
     delete redTeam[spymasterIDs[1]];
     delete blueTeam[spymasterIDs[0]];
   }
-  
+
   let listMsg = `
 \`\`\`diff
 -(っ◔◡◔)っ ♥ Red Team! ♥
@@ -137,7 +137,6 @@ function list(message) {
 -~* Players *~-
 -${Object.values(redTeam).join("\n-")}
 \`\`\`
-
 \`\`\`ini
 [♥ Blue Team! ♥ (⊂◕‿◕⊂)]
 [~ Spymaster ~ => ${blueSpymaster ? Object.values(blueSpymaster)[0] : ""}]
@@ -145,7 +144,7 @@ function list(message) {
 [${Object.values(blueTeam).join("]\n[")}]
 \`\`\`
 `
-  
+
   message.channel.send(listMsg)
 }
 
