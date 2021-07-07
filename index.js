@@ -1,6 +1,12 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 require("dotenv").config();
+client.login(process.env.discordToken)
+
+// Temp, not sure why these were ever env variables when they don't need to be protected?
+let redRoleID = process.env.redRoleID;
+let blueRoleID = process.env.blueRoleID;
+let spymasterRoleID = process.env.spymasterRoleID
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -46,8 +52,8 @@ client.on("message", (message) => {
       message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "list":
-      // list(message)
-      message.channel.send(`\`${input.command}\` is not setup yet.`);
+      list(message)
+      // message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "add":
       role = input.targets[0];
@@ -90,7 +96,57 @@ client.on("message", (message) => {
 function assign() {}
 
 function list(message) {
+  let redSpymaster, blueSpymaster, redTeam, blueTeam, spymasterIDs;
+  try {
+    redTeam = message.guild.roles.cache.get(redRoleID).members.map(m => ({ [m.id]: m.nickname }));
+    redTeam = Object.assign(...redTeam)
+  } catch {
+    redTeam = {}
+  }
 
+  try {
+    blueTeam = message.guild.roles.cache.get(blueRoleID).members.map(m => ({ [m.id]: m.nickname }));
+    blueTeam = Object.assign(...blueTeam)
+  } catch {
+    blueTeam = {}
+  }
+
+  try {
+    spymasterIDs = message.guild.roles.cache.get(spymasterRoleID).members.map(m => m.id);
+  } catch {
+    spymasterIDs = []
+  }
+
+
+  if (spymasterIDs[0] && redTeam[spymasterIDs[0]]) {
+    if (spymasterIDs[0]) redSpymaster = { [spymasterIDs[0]]: redTeam[spymasterIDs[0]] };
+    if (spymasterIDs[1]) blueSpymaster = { [spymasterIDs[1]]: blueTeam[spymasterIDs[1]] };
+    delete redTeam[spymasterIDs[0]];
+    delete blueTeam[spymasterIDs[1]];
+  } else if (spymasterIDs[0] && redTeam[spymasterIDs[1]]) {
+    if (spymasterIDs[1]) redSpymaster = { [spymasterIDs[1]]: redTeam[spymasterIDs[1]] };
+    if (spymasterIDs[0]) blueSpymaster = { [spymasterIDs[0]]: blueTeam[spymasterIDs[0]] };
+    delete redTeam[spymasterIDs[1]];
+    delete blueTeam[spymasterIDs[0]];
+  }
+  
+  let listMsg = `
+\`\`\`diff
+-(っ◔◡◔)っ ♥ Red Team! ♥
+-~ Spymaster ~ => ${redSpymaster ? Object.values(redSpymaster)[0] : ""}
+-~* Players *~-
+-${Object.values(redTeam).join("\n-")}
+\`\`\`
+
+\`\`\`ini
+[♥ Blue Team! ♥ (⊂◕‿◕⊂)]
+[~ Spymaster ~ => ${blueSpymaster ? Object.values(blueSpymaster)[0] : ""}]
+[~* Players *~]
+[${Object.values(blueTeam).join("]\n[")}]
+\`\`\`
+`
+  
+  message.channel.send(listMsg)
 }
 
 function add(message, role, target) {
