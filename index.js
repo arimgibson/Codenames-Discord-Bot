@@ -225,18 +225,17 @@ function reset(message, target) {
 }
 
 function help(message, targets) {
-  /* Help Message
-    CN Roles: Red, Blue, Spymaster
+  let helpResponse = `
+\`\`\`
+CN Roles: Red, Blue, Spymaster
 
-    !cn reset = resets all CN roles for all members
-    !cn reset [role] = removes all users from role
-    !cn reset @member ... = resets all CN roles for users tagged
+!cn reset = resets all CN roles for all members
+!cn reset [role] = removes all users from role
+!cn reset @member ... = resets all CN roles for users tagged
 
-    !cn add [role] @member ... = adds role to users tagged
+!cn add [role] @member ... = adds role to users tagged
 
-    !cn remove [role] @member ... = removes role from users tagged */
-
-  let helpResponse = `\`\`\`CN Roles: Red, Blue, Spymaster\n\n!cn reset = resets all CN roles for all members\n!cn reset [role] = removes all users from role\n!cn reset @member ... = resets all CN roles for users tagged\n\n!cn add [role] @member ... = adds role to users tagged\n\n!cn remove [role] @member ... = removes role from users tagged\`\`\``;
+!cn remove [role] @member ... = removes role from users tagged\`\`\``;
 
   if (targets.length > 0) helpResponse = [...targets] + helpResponse;
 
