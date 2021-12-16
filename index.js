@@ -15,10 +15,10 @@ client.on("ready", () => {
 
 client.on("message", (message) => {
   let input = (function () {
-    let content = message.content.toLowerCase();
+    let content = message.content();
 
-    if (content.startsWith("!cn ")) content = content.substring(4).split(" ");
-    else if (content.startsWith("!codenames ")) content = content.substring(11).split(" ");
+    if (content.toLowerCase().startsWith("!cn ")) content = content.substring(4).split(" ");
+    else if (content.toLowerCase().startsWith("!codenames ")) content = content.substring(11).split(" ");
     else return false;
 
     let parsed = {};
@@ -47,7 +47,7 @@ client.on("message", (message) => {
 
   let role;
 
-  switch (input.command) {
+  switch (input.command.toLowerCase()) {
     case "assign":
       message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
@@ -56,7 +56,7 @@ client.on("message", (message) => {
       // message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "add":
-      role = input.targets[0];
+      role = input.targets[0].toLowerCase();
       input.targets.shift();
       if (input.targets.length === 0) {
         message.channel.send("Sorry, you didn't specify a team to add the user(s) to. Options are `red`, `blue`, or `spymaster`");
@@ -67,7 +67,7 @@ client.on("message", (message) => {
       }
       break;
     case "remove":
-      role = input.targets[0];
+      role = input.targets[0].toLowerCase();
       input.targets.shift();
       if (input.targets.length === 0) {
         message.channel.send("Sorry, you didn't specify a team to remove the user(s) from. Options are `red`, `blue`, or `spymaster`");
