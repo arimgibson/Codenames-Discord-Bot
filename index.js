@@ -1,12 +1,12 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 require("dotenv").config();
-client.login(process.env.discordToken)
+client.login(process.env.discordToken);
 
 // Temp, not sure why these were ever env variables when they don't need to be protected?
 let redRoleID = process.env.redRoleID;
 let blueRoleID = process.env.blueRoleID;
-let spymasterRoleID = process.env.spymasterRoleID
+let spymasterRoleID = process.env.spymasterRoleID;
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -52,7 +52,7 @@ client.on("message", (message) => {
       message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "list":
-      list(message)
+      list(message);
       // message.channel.send(`\`${input.command}\` is not setup yet.`);
       break;
     case "add":
@@ -93,30 +93,29 @@ client.on("message", (message) => {
   }
 });
 
-function assign() { }
+function assign() {}
 
 function list(message) {
   let redSpymaster, blueSpymaster, redTeam, blueTeam, spymasterIDs;
   try {
-    redTeam = message.guild.roles.cache.get(redRoleID).members.map(m => ({ [m.id]: (m.nickname ? m.nickname : m.user.username) }));
-    redTeam = Object.assign(...redTeam)
+    redTeam = message.guild.roles.cache.get(redRoleID).members.map((m) => ({ [m.id]: m.nickname ? m.nickname : m.user.username }));
+    redTeam = Object.assign(...redTeam);
   } catch {
-    redTeam = {}
+    redTeam = {};
   }
 
   try {
-    blueTeam = message.guild.roles.cache.get(blueRoleID).members.map(m => ({ [m.id]: (m.nickname ? m.nickname : m.user.username) }));
-    blueTeam = Object.assign(...blueTeam)
+    blueTeam = message.guild.roles.cache.get(blueRoleID).members.map((m) => ({ [m.id]: m.nickname ? m.nickname : m.user.username }));
+    blueTeam = Object.assign(...blueTeam);
   } catch {
-    blueTeam = {}
+    blueTeam = {};
   }
 
   try {
-    spymasterIDs = message.guild.roles.cache.get(spymasterRoleID).members.map(m => m.id);
+    spymasterIDs = message.guild.roles.cache.get(spymasterRoleID).members.map((m) => m.id);
   } catch {
-    spymasterIDs = []
+    spymasterIDs = [];
   }
-
 
   if (spymasterIDs[0] && redTeam[spymasterIDs[0]]) {
     if (spymasterIDs[0]) redSpymaster = { [spymasterIDs[0]]: redTeam[spymasterIDs[0]] };
@@ -143,9 +142,9 @@ function list(message) {
 [~* Players *~]
 [${Object.values(blueTeam).join("]\n[")}]
 \`\`\`
-`
+`;
 
-  message.channel.send(listMsg)
+  message.channel.send(listMsg);
 }
 
 function add(message, role, target) {
