@@ -11,6 +11,9 @@ let spymasterRoleID = process.env.spymasterRoleID;
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.guilds.cache.get(process.env.serverID).members.fetch();
+  client.user.setActivity("for !cn help", {
+    type: "WATCHING",
+  });
 });
 
 client.on("message", (message) => {
